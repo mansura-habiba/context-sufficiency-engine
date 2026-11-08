@@ -1,0 +1,433 @@
+[
+  {
+    "name": "incident dependency closure",
+    "request": {
+      "task": "Diagnose checkout API error spike after deployment",
+      "principal": {
+        "tenant": "bank-eu",
+        "subject": "sre-oncall",
+        "clearance": "internal",
+        "scopes": [
+          "incident.read"
+        ]
+      },
+      "budget_tokens": 900,
+      "task_classification": "internal",
+      "items": [
+        {
+          "id": "change-101",
+          "tenant": "bank-eu",
+          "title": "Production deployment",
+          "content": "At 10:51 UTC release 18 deployed to checkout API. Feature flag changed for payment retry.",
+          "source": "example://change-101",
+          "version": "1",
+          "sha256": "07efb851784714b25c241e4e21b6158c5222b75f962364ce1a075dc75c078452"
+        },
+        {
+          "id": "health-102",
+          "tenant": "bank-eu",
+          "title": "Checkout errors",
+          "content": "Checkout API 5xx rate increased from 0.3% to 18% at 10:53 UTC, two minutes after deployment.",
+          "source": "example://health-102",
+          "version": "1",
+          "sha256": "3ad7ed5a7016d102b69a0e9eff1fd46c3d9649f639afe6516ea1355eda9371ba"
+        },
+        {
+          "id": "capsule-103",
+          "tenant": "bank-eu",
+          "title": "Incident evidence capsule",
+          "content": "Checkout degradation occurred after payment retry deployment; verify change against health metrics before remediation.",
+          "source": "example://capsule-103",
+          "version": "1",
+          "sha256": "3ca201c1081d618d4128e7917d641803d3fb4ec4b6122c4f024f62bb4d011dd3",
+          "dependencies": [
+            "change-101",
+            "health-102"
+          ]
+        },
+        {
+          "id": "runbook-104",
+          "tenant": "bank-eu",
+          "title": "Checkout rollback procedure",
+          "content": "For severe checkout degradation, validate approval and rollback the changed version. Verify transaction rate after rollback.",
+          "source": "example://runbook-104",
+          "version": "1",
+          "sha256": "27fd1357912d96c4daea259d94f9fee9a4ec8b1668c58da1b89408a3dc364da9"
+        },
+        {
+          "id": "unrelated-105",
+          "tenant": "bank-eu",
+          "title": "Cafeteria menu",
+          "content": "A list of sandwiches available in the canteen this afternoon.",
+          "source": "example://unrelated-105",
+          "version": "1",
+          "sha256": "e941309ded12f94b4ddb22872d08f5ab73aa9152fe3b4f69439604cc40c1c7d1"
+        },
+        {
+          "id": "other-tenant-106",
+          "tenant": "bank-us",
+          "title": "Payment data other tenant",
+          "content": "This is a highly sensitive payment record from a different tenant.",
+          "source": "example://other-tenant-106",
+          "version": "1",
+          "sha256": "e5fe9eff658bf4239829899e3242310cc96961ec8567ae39752085d43a99890d"
+        },
+        {
+          "id": "restricted-107",
+          "tenant": "bank-eu",
+          "title": "Protected incident note",
+          "content": "Sensitive investigation notes that require incident.security access.",
+          "source": "example://restricted-107",
+          "version": "1",
+          "sha256": "413ee6b8aae114d6baf5a3b7239f913e28238bb532a2ad9dd9ca8308c022c7c2",
+          "visibility": "restricted",
+          "allowed_scopes": [
+            "incident.security"
+          ]
+        },
+        {
+          "id": "expired-108",
+          "tenant": "bank-eu",
+          "title": "Superseded incident note",
+          "content": "Old rollback parameters are no longer valid.",
+          "source": "example://expired-108",
+          "version": "1",
+          "sha256": "9587df6a5233bc3674b74626e89baa160ba6ad9e3060a9d690087fddc49ffcb0",
+          "expires_at": "2026-09-01T00:00:00Z"
+        }
+      ],
+      "pinned_ids": [
+        "capsule-103"
+      ],
+      "requirements": [
+        {
+          "id": "recent-change",
+          "any_of": [
+            "change-101"
+          ]
+        },
+        {
+          "id": "health-signals",
+          "any_of": [
+            "health-102"
+          ]
+        }
+      ]
+    },
+    "must_include": [
+      "capsule-103",
+      "change-101",
+      "health-102"
+    ],
+    "must_exclude": [
+      "other-tenant-106",
+      "restricted-107",
+      "expired-108"
+    ],
+    "expected_status": "ready"
+  },
+  {
+    "name": "cross-tenant isolation",
+    "request": {
+      "task": "Diagnose checkout API error spike after deployment",
+      "principal": {
+        "tenant": "bank-eu",
+        "subject": "sre-oncall",
+        "clearance": "internal",
+        "scopes": [
+          "incident.read"
+        ]
+      },
+      "budget_tokens": 900,
+      "task_classification": "internal",
+      "items": [
+        {
+          "id": "owned",
+          "tenant": "bank-eu",
+          "title": "Checkout alerts",
+          "content": "Checkout payment timeout",
+          "source": "example://owned",
+          "version": "1",
+          "sha256": "96402e8442d6c85773247687e5cfdc00dbedefcaff4a406386fc094b94371069"
+        },
+        {
+          "id": "other",
+          "tenant": "bank-us",
+          "title": "Checkout secret elsewhere",
+          "content": "Confidential info",
+          "source": "example://other",
+          "version": "1",
+          "sha256": "6a88379d8c680cdc9ca35dcb36447b9b999e0c15e210533c8ae7fca1659dff01"
+        }
+      ],
+      "pinned_ids": [
+        "owned"
+      ]
+    },
+    "must_include": [
+      "owned"
+    ],
+    "must_exclude": [
+      "other"
+    ],
+    "expected_status": "ready"
+  },
+  {
+    "name": "restricted ACL absent",
+    "request": {
+      "task": "Diagnose checkout API error spike after deployment",
+      "principal": {
+        "tenant": "bank-eu",
+        "subject": "sre-oncall",
+        "clearance": "internal",
+        "scopes": [
+          "incident.read"
+        ]
+      },
+      "budget_tokens": 900,
+      "task_classification": "internal",
+      "items": [
+        {
+          "id": "lock",
+          "tenant": "bank-eu",
+          "title": "Checkout log",
+          "content": "Restricted log",
+          "source": "example://lock",
+          "version": "1",
+          "sha256": "1fd559c7a0962189c6a534675255cbba4e25728e710f219c57b39cfeff2adb61",
+          "visibility": "restricted"
+        }
+      ],
+      "pinned_ids": [
+        "lock"
+      ]
+    },
+    "must_include": [],
+    "must_exclude": [],
+    "expected_status": "blocked"
+  },
+  {
+    "name": "mandatory expired record",
+    "request": {
+      "task": "Diagnose checkout API error spike after deployment",
+      "principal": {
+        "tenant": "bank-eu",
+        "subject": "sre-oncall",
+        "clearance": "internal",
+        "scopes": [
+          "incident.read"
+        ]
+      },
+      "budget_tokens": 900,
+      "task_classification": "internal",
+      "items": [
+        {
+          "id": "old",
+          "tenant": "bank-eu",
+          "title": "Old signal",
+          "content": "Checkout failure old",
+          "source": "example://old",
+          "version": "1",
+          "sha256": "ca1cf98fcc13693d1f59a1f31b494c1995b3fc0229e76ac023a9fb24b448948a",
+          "expires_at": "2026-01-01T00:00:00Z"
+        }
+      ],
+      "pinned_ids": [
+        "old"
+      ]
+    },
+    "must_include": [],
+    "must_exclude": [],
+    "expected_status": "blocked"
+  },
+  {
+    "name": "missing dependency fails closed",
+    "request": {
+      "task": "Diagnose checkout API error spike after deployment",
+      "principal": {
+        "tenant": "bank-eu",
+        "subject": "sre-oncall",
+        "clearance": "internal",
+        "scopes": [
+          "incident.read"
+        ]
+      },
+      "budget_tokens": 900,
+      "task_classification": "internal",
+      "items": [
+        {
+          "id": "parent",
+          "tenant": "bank-eu",
+          "title": "Evidence",
+          "content": "Checkout parent",
+          "source": "example://parent",
+          "version": "1",
+          "sha256": "4a3342f8c050209ca6fa0a51bd31a2ba23ccbf11b0f92fecc89b4339566fed8d",
+          "dependencies": [
+            "gone"
+          ]
+        }
+      ],
+      "pinned_ids": [
+        "parent"
+      ]
+    },
+    "must_include": [],
+    "must_exclude": [],
+    "expected_status": "blocked"
+  },
+  {
+    "name": "requirement alternatives",
+    "request": {
+      "task": "Diagnose checkout API error spike after deployment",
+      "principal": {
+        "tenant": "bank-eu",
+        "subject": "sre-oncall",
+        "clearance": "internal",
+        "scopes": [
+          "incident.read"
+        ]
+      },
+      "budget_tokens": 200,
+      "task_classification": "internal",
+      "items": [
+        {
+          "id": "short",
+          "tenant": "bank-eu",
+          "title": "Checkout signal",
+          "content": "Checkout API is failing.",
+          "source": "example://short",
+          "version": "1",
+          "sha256": "9455acb9f80df4f7e827ad87deaf6e5b8679191ce1f951c3f3414802de9b35cb"
+        },
+        {
+          "id": "long",
+          "tenant": "bank-eu",
+          "title": "Unrelated",
+          "content": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+          "source": "example://long",
+          "version": "1",
+          "sha256": "ccca685709aa9e68d44ebb8e4aa02743fbf0c32b65ab5ac93ab6b1fd3d7ec7aa"
+        }
+      ],
+      "requirements": [
+        {
+          "id": "signal",
+          "any_of": [
+            "short",
+            "long"
+          ]
+        }
+      ]
+    },
+    "must_include": [
+      "short"
+    ],
+    "must_exclude": [
+      "long"
+    ],
+    "expected_status": "ready"
+  },
+  {
+    "name": "no claim without requirements",
+    "request": {
+      "task": "Diagnose checkout API error spike after deployment",
+      "principal": {
+        "tenant": "bank-eu",
+        "subject": "sre-oncall",
+        "clearance": "internal",
+        "scopes": [
+          "incident.read"
+        ]
+      },
+      "budget_tokens": 900,
+      "task_classification": "internal",
+      "items": [
+        {
+          "id": "note",
+          "tenant": "bank-eu",
+          "title": "Checkout diagnosis",
+          "content": "Checkout is unhealthy",
+          "source": "example://note",
+          "version": "1",
+          "sha256": "fb6f1df16a4115777bbbd16b840d6696183ddeeb6cca124c4e4bd401464b5d33"
+        }
+      ]
+    },
+    "must_include": [],
+    "must_exclude": [],
+    "expected_status": "unverified"
+  },
+  {
+    "name": "valid scoped restricted evidence",
+    "request": {
+      "task": "Diagnose checkout API error spike after deployment",
+      "principal": {
+        "tenant": "bank-eu",
+        "subject": "sre-oncall",
+        "clearance": "internal",
+        "scopes": [
+          "incident.read"
+        ]
+      },
+      "budget_tokens": 900,
+      "task_classification": "internal",
+      "items": [
+        {
+          "id": "allowed",
+          "tenant": "bank-eu",
+          "title": "Checkout scoped",
+          "content": "Checkout scoped log",
+          "source": "example://allowed",
+          "version": "1",
+          "sha256": "1da7788b65a5fdb1c2efaaf918a4c79038dd5e4c11c7705acc1217fd15af7cc0",
+          "visibility": "restricted",
+          "allowed_scopes": [
+            "incident.read"
+          ]
+        }
+      ],
+      "pinned_ids": [
+        "allowed"
+      ]
+    },
+    "must_include": [
+      "allowed"
+    ],
+    "must_exclude": [],
+    "expected_status": "ready"
+  },
+  {
+    "name": "insufficient budget",
+    "request": {
+      "task": "Diagnose checkout API error spike after deployment",
+      "principal": {
+        "tenant": "bank-eu",
+        "subject": "sre-oncall",
+        "clearance": "internal",
+        "scopes": [
+          "incident.read"
+        ]
+      },
+      "budget_tokens": 80,
+      "task_classification": "internal",
+      "items": [
+        {
+          "id": "large",
+          "tenant": "bank-eu",
+          "title": "Long required",
+          "content": "checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout checkout ",
+          "source": "example://large",
+          "version": "1",
+          "sha256": "5797d252b513c60554b602c43bf5d46672cc29ed93a8630ed64f63b3f81457c4"
+        }
+      ],
+      "pinned_ids": [
+        "large"
+      ]
+    },
+    "must_include": [],
+    "must_exclude": [],
+    "expected_status": "blocked"
+  }
+]

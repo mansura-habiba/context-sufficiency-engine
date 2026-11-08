@@ -1,0 +1,60 @@
+{"task": "Diagnose checkout errors", "title": "Checkout 5xx logs", "content": "New checkout deploy caused 5xx errors Region 0", "label": 1}
+{"task": "Diagnose checkout errors", "title": "Lunch menu", "content": "Vegetarian sandwiches Region 0", "label": 0}
+{"task": "Review credential rotation", "title": "KMS rotation evidence", "content": "KMS key rotated at 10:00 Region 0", "label": 1}
+{"task": "Review credential rotation", "title": "Garden schedule", "content": "Plant seeds Region 0", "label": 0}
+{"task": "Investigate database outage", "title": "Database connection alerts", "content": "Database connections exhausted Region 0", "label": 1}
+{"task": "Investigate database outage", "title": "Employee handbook", "content": "Paid leave rules Region 0", "label": 0}
+{"task": "Explain customer refund", "title": "Payment refund trace", "content": "Refund was processed in full Region 0", "label": 1}
+{"task": "Explain customer refund", "title": "Build instruction", "content": "Deploy staging container Region 0", "label": 0}
+{"task": "Assess rollback approval", "title": "Change advisory decision", "content": "Rollback was approved by CAB Region 0", "label": 1}
+{"task": "Assess rollback approval", "title": "Weather report", "content": "Clouds and rain Region 0", "label": 0}
+{"task": "Validate invoice failure", "title": "Invoice processing trace", "content": "Invoice pipeline failed on VAT rule Region 0", "label": 1}
+{"task": "Validate invoice failure", "title": "Travel itinerary", "content": "Flights to Paris Region 0", "label": 0}
+{"task": "Repair failing CI build", "title": "CI pipeline logs", "content": "Unit test import errors in build Region 0", "label": 1}
+{"task": "Repair failing CI build", "title": "Customer survey", "content": "Net promoter score Region 0", "label": 0}
+{"task": "Check network egress", "title": "Network firewall events", "content": "Egress was denied by ACL Region 0", "label": 1}
+{"task": "Check network egress", "title": "Catering request", "content": "Fruit salad Region 0", "label": 0}
+{"task": "Compare schema migration", "title": "Migration plan", "content": "Schema columns differ after migration Region 0", "label": 1}
+{"task": "Compare schema migration", "title": "Annual bonus", "content": "Payroll records Region 0", "label": 0}
+{"task": "Verify disaster recovery", "title": "Recovery drill results", "content": "Failover runbook verification passed Region 0", "label": 1}
+{"task": "Verify disaster recovery", "title": "Marketing campaign", "content": "Email open rate Region 0", "label": 0}
+{"task": "Diagnose checkout errors", "title": "Checkout 5xx logs", "content": "New checkout deploy caused 5xx errors Region 1", "label": 1}
+{"task": "Diagnose checkout errors", "title": "Lunch menu", "content": "Vegetarian sandwiches Region 1", "label": 0}
+{"task": "Review credential rotation", "title": "KMS rotation evidence", "content": "KMS key rotated at 10:00 Region 1", "label": 1}
+{"task": "Review credential rotation", "title": "Garden schedule", "content": "Plant seeds Region 1", "label": 0}
+{"task": "Investigate database outage", "title": "Database connection alerts", "content": "Database connections exhausted Region 1", "label": 1}
+{"task": "Investigate database outage", "title": "Employee handbook", "content": "Paid leave rules Region 1", "label": 0}
+{"task": "Explain customer refund", "title": "Payment refund trace", "content": "Refund was processed in full Region 1", "label": 1}
+{"task": "Explain customer refund", "title": "Build instruction", "content": "Deploy staging container Region 1", "label": 0}
+{"task": "Assess rollback approval", "title": "Change advisory decision", "content": "Rollback was approved by CAB Region 1", "label": 1}
+{"task": "Assess rollback approval", "title": "Weather report", "content": "Clouds and rain Region 1", "label": 0}
+{"task": "Validate invoice failure", "title": "Invoice processing trace", "content": "Invoice pipeline failed on VAT rule Region 1", "label": 1}
+{"task": "Validate invoice failure", "title": "Travel itinerary", "content": "Flights to Paris Region 1", "label": 0}
+{"task": "Repair failing CI build", "title": "CI pipeline logs", "content": "Unit test import errors in build Region 1", "label": 1}
+{"task": "Repair failing CI build", "title": "Customer survey", "content": "Net promoter score Region 1", "label": 0}
+{"task": "Check network egress", "title": "Network firewall events", "content": "Egress was denied by ACL Region 1", "label": 1}
+{"task": "Check network egress", "title": "Catering request", "content": "Fruit salad Region 1", "label": 0}
+{"task": "Compare schema migration", "title": "Migration plan", "content": "Schema columns differ after migration Region 1", "label": 1}
+{"task": "Compare schema migration", "title": "Annual bonus", "content": "Payroll records Region 1", "label": 0}
+{"task": "Verify disaster recovery", "title": "Recovery drill results", "content": "Failover runbook verification passed Region 1", "label": 1}
+{"task": "Verify disaster recovery", "title": "Marketing campaign", "content": "Email open rate Region 1", "label": 0}
+{"task": "Diagnose checkout errors", "title": "Checkout 5xx logs", "content": "New checkout deploy caused 5xx errors Region 2", "label": 1}
+{"task": "Diagnose checkout errors", "title": "Lunch menu", "content": "Vegetarian sandwiches Region 2", "label": 0}
+{"task": "Review credential rotation", "title": "KMS rotation evidence", "content": "KMS key rotated at 10:00 Region 2", "label": 1}
+{"task": "Review credential rotation", "title": "Garden schedule", "content": "Plant seeds Region 2", "label": 0}
+{"task": "Investigate database outage", "title": "Database connection alerts", "content": "Database connections exhausted Region 2", "label": 1}
+{"task": "Investigate database outage", "title": "Employee handbook", "content": "Paid leave rules Region 2", "label": 0}
+{"task": "Explain customer refund", "title": "Payment refund trace", "content": "Refund was processed in full Region 2", "label": 1}
+{"task": "Explain customer refund", "title": "Build instruction", "content": "Deploy staging container Region 2", "label": 0}
+{"task": "Assess rollback approval", "title": "Change advisory decision", "content": "Rollback was approved by CAB Region 2", "label": 1}
+{"task": "Assess rollback approval", "title": "Weather report", "content": "Clouds and rain Region 2", "label": 0}
+{"task": "Validate invoice failure", "title": "Invoice processing trace", "content": "Invoice pipeline failed on VAT rule Region 2", "label": 1}
+{"task": "Validate invoice failure", "title": "Travel itinerary", "content": "Flights to Paris Region 2", "label": 0}
+{"task": "Repair failing CI build", "title": "CI pipeline logs", "content": "Unit test import errors in build Region 2", "label": 1}
+{"task": "Repair failing CI build", "title": "Customer survey", "content": "Net promoter score Region 2", "label": 0}
+{"task": "Check network egress", "title": "Network firewall events", "content": "Egress was denied by ACL Region 2", "label": 1}
+{"task": "Check network egress", "title": "Catering request", "content": "Fruit salad Region 2", "label": 0}
+{"task": "Compare schema migration", "title": "Migration plan", "content": "Schema columns differ after migration Region 2", "label": 1}
+{"task": "Compare schema migration", "title": "Annual bonus", "content": "Payroll records Region 2", "label": 0}
+{"task": "Verify disaster recovery", "title": "Recovery drill results", "content": "Failover runbook verification passed Region 2", "label": 1}
+{"task": "Verify disaster recovery", "title": "Marketing campaign", "content": "Email open rate Region 2", "label": 0}
