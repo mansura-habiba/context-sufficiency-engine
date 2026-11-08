@@ -1,0 +1,113 @@
+{
+  "task": "Diagnose checkout API error spike after deployment",
+  "principal": {
+    "tenant": "bank-eu",
+    "subject": "sre-oncall",
+    "clearance": "internal",
+    "scopes": [
+      "incident.read"
+    ]
+  },
+  "budget_tokens": 900,
+  "task_classification": "internal",
+  "items": [
+    {
+      "id": "change-101",
+      "tenant": "bank-eu",
+      "title": "Production deployment",
+      "content": "At 10:51 UTC release 18 deployed to checkout API. Feature flag changed for payment retry.",
+      "source": "example://change-101",
+      "version": "1",
+      "sha256": "07efb851784714b25c241e4e21b6158c5222b75f962364ce1a075dc75c078452"
+    },
+    {
+      "id": "health-102",
+      "tenant": "bank-eu",
+      "title": "Checkout errors",
+      "content": "Checkout API 5xx rate increased from 0.3% to 18% at 10:53 UTC, two minutes after deployment.",
+      "source": "example://health-102",
+      "version": "1",
+      "sha256": "3ad7ed5a7016d102b69a0e9eff1fd46c3d9649f639afe6516ea1355eda9371ba"
+    },
+    {
+      "id": "capsule-103",
+      "tenant": "bank-eu",
+      "title": "Incident evidence capsule",
+      "content": "Checkout degradation occurred after payment retry deployment; verify change against health metrics before remediation.",
+      "source": "example://capsule-103",
+      "version": "1",
+      "sha256": "3ca201c1081d618d4128e7917d641803d3fb4ec4b6122c4f024f62bb4d011dd3",
+      "dependencies": [
+        "change-101",
+        "health-102"
+      ]
+    },
+    {
+      "id": "runbook-104",
+      "tenant": "bank-eu",
+      "title": "Checkout rollback procedure",
+      "content": "For severe checkout degradation, validate approval and rollback the changed version. Verify transaction rate after rollback.",
+      "source": "example://runbook-104",
+      "version": "1",
+      "sha256": "27fd1357912d96c4daea259d94f9fee9a4ec8b1668c58da1b89408a3dc364da9"
+    },
+    {
+      "id": "unrelated-105",
+      "tenant": "bank-eu",
+      "title": "Cafeteria menu",
+      "content": "A list of sandwiches available in the canteen this afternoon.",
+      "source": "example://unrelated-105",
+      "version": "1",
+      "sha256": "e941309ded12f94b4ddb22872d08f5ab73aa9152fe3b4f69439604cc40c1c7d1"
+    },
+    {
+      "id": "other-tenant-106",
+      "tenant": "bank-us",
+      "title": "Payment data other tenant",
+      "content": "This is a highly sensitive payment record from a different tenant.",
+      "source": "example://other-tenant-106",
+      "version": "1",
+      "sha256": "e5fe9eff658bf4239829899e3242310cc96961ec8567ae39752085d43a99890d"
+    },
+    {
+      "id": "restricted-107",
+      "tenant": "bank-eu",
+      "title": "Protected incident note",
+      "content": "Sensitive investigation notes that require incident.security access.",
+      "source": "example://restricted-107",
+      "version": "1",
+      "sha256": "413ee6b8aae114d6baf5a3b7239f913e28238bb532a2ad9dd9ca8308c022c7c2",
+      "visibility": "restricted",
+      "allowed_scopes": [
+        "incident.security"
+      ]
+    },
+    {
+      "id": "expired-108",
+      "tenant": "bank-eu",
+      "title": "Superseded incident note",
+      "content": "Old rollback parameters are no longer valid.",
+      "source": "example://expired-108",
+      "version": "1",
+      "sha256": "9587df6a5233bc3674b74626e89baa160ba6ad9e3060a9d690087fddc49ffcb0",
+      "expires_at": "2026-09-01T00:00:00Z"
+    }
+  ],
+  "pinned_ids": [
+    "capsule-103"
+  ],
+  "requirements": [
+    {
+      "id": "recent-change",
+      "any_of": [
+        "change-101"
+      ]
+    },
+    {
+      "id": "health-signals",
+      "any_of": [
+        "health-102"
+      ]
+    }
+  ]
+}
