@@ -20,13 +20,13 @@
 \begin{document}
 \maketitle
 \begin{abstract}
-Autonomous language-model agents increasingly select among retrieved documents, service descriptions, tool schemas, and observations before acting. Retrieval relevance alone neither establishes permission to observe a source nor guarantees that the assembled evidence suffices for a correct decision. At the same time, source eligibility and declared requirement coverage do not establish semantic truth, safety, or action authority. We formulate these as four separable properties: evidence eligibility, declared coverage, task-level sufficiency, and independently authorized execution. We introduce a threat-model-driven evaluation protocol for a policy-first Context Sufficiency Engine (CSE), which constructs provenance-bearing context bundles with dependency and token-budget constraints. The proposed benchmark uses paired benign and adversarial tasks, an independent sufficiency oracle, action-effect adjudication, and controlled ablations. A complementary scale study applies the same questions to layered Model Context Protocol (MCP) discovery, where three agent-facing tools address up to 1,000 underlying operations. We specify falsifiable hypotheses, baselines, and metrics that jointly measure security and legitimate-task utility. This version is a research protocol and architectural analysis: \emph{the end-to-end attacks and model evaluations have not yet been run}, and no defense efficacy is claimed.
+Autonomous language-model agents increasingly select among retrieved documents, service descriptions, tool schemas, and observations before acting. Retrieval relevance alone neither establishes permission to observe a source nor guarantees that the assembled evidence suffices for a correct decision. At the same time, source eligibility and declared requirement coverage do not establish semantic truth, safety, or action authority. We formulate these as four separable properties: evidence eligibility, declared coverage, task-level sufficiency, and independently authorized execution. We introduce a threat-model-driven evaluation protocol for a policy-first Context Sufficiency Engine (CSE), which constructs provenance-bearing context bundles with dependency and token-budget constraints. The proposed benchmark uses paired benign and adversarial tasks, an independent sufficiency oracle, action-effect adjudication, and controlled ablations, with a policy-aware hierarchical retriever as the primary comparator. A complementary scale study applies the same questions to layered Model Context Protocol (MCP) discovery, where three agent-facing tools address up to 1,000 underlying operations. We specify falsifiable hypotheses, baselines, and metrics that jointly measure security and legitimate-task utility. This version is a research protocol and architectural analysis: \emph{the end-to-end attacks and model evaluations have not yet been run}, and no defense efficacy is claimed.
 \end{abstract}
 
 \section{Introduction}
 An agent acting on an infrastructure incident may retrieve error reports, change records, service metadata, authorization rules, and executable tool schemas. Selecting highly relevant text is not enough: a record may belong to a different tenant, be stale, omit a prerequisite, or contain instructions injected by an untrusted source. A tool schema may be syntactically valid while its descriptive prose seeks to redirect the agent. Conversely, a correctly authenticated record may be misleading or incomplete. The fact that the model sees a relevant document does not entail that it has enough evidence to choose an action.
 
-Prompt injection against tool-using agents has been demonstrated in dynamic evaluation environments \cite{debenedetti2024agentdojo}; malicious MCP tool metadata introduces a distinct attack surface \cite{wang2026mcptox}. These studies motivate a complementary question: what portion of the security problem can be addressed \emph{before} inference by carefully controlling the composition of task evidence, and which vulnerabilities necessarily require independent action enforcement?
+Prompt injection against tool-using agents has been demonstrated in dynamic evaluation environments \cite{debenedetti2024agentdojo}; malicious MCP tool metadata introduces a distinct attack surface \cite{wang2026mcptox}. Evidence sufficiency itself has also been studied as a distinct retrieval problem \cite{joren2025sufficient,zhang2026sufficiency,qiu2026sure,chen2026rinse}. Accordingly, we do not claim to introduce the distinction between relevance and sufficiency or to implement a general semantic-sufficiency classifier. These studies motivate a complementary question: what portion of the security problem can be addressed \emph{before} inference by carefully controlling the composition of task evidence, and which vulnerabilities necessarily require independent action enforcement?
 
 We investigate an implemented research prototype, Context Sufficiency Engine (CSE), as a candidate mechanism, not a proven defense. CSE admits evidence according to tenant, access, time, and integrity constraints; preserves declared dependencies; accommodates token budgets and explicit evidence requirements; and emits a provenance manifest and coverage status. Its current \texttt{ready} status means that \emph{declared} requirements are satisfied; it does not certify factual or semantic sufficiency. We turn that limitation into the central empirical question rather than hiding it.
 
@@ -77,7 +77,7 @@ We define eight attack families: A1 cross-tenant evidence ranking, A2 evidence d
 
 \section{Methodology}
 \paragraph{Baselines.}
-Compare (B0) unmodified layered discovery or task retrieval, (B1) lexical top-$k$, (B2) semantic top-$k$, (B3) hierarchical discovery with strong schema/policy validation, (B4) CSE eligibility-only, and (B5) full CSE. Keep the same independent execution gate across the main comparison. A distinct defense-in-depth analysis toggles that gate and is never attributed to CSE alone. Match model, context budgets, visible task information, service snapshots, and policy assumptions. Where a full catalog does not fit, report overflow rather than silently truncating it.
+The first pilot compares (B0) unmodified hierarchical/lexical retrieval, (B1) a strong policy-aware hierarchical retriever with eligibility and schema checks, and (B2) full CSE with dependency and declared-coverage constraints. \emph{B1 versus B2 is the primary causal comparison}. Larger studies add semantic top-$k$ and eligibility-only ablations. Keep the same independent execution gate across the main comparison. A distinct defense-in-depth analysis toggles that gate and is never attributed to CSE alone. Match model, context budgets, visible task information, service snapshots, and policy assumptions. Where a full catalog does not fit, report overflow rather than silently truncating it.
 
 \paragraph{Independent oracle and leakage prevention.}
 A task generator emits an execution sandbox and hidden outcome constraints. A second validation pass checks the oracle against task descriptions and feasible tool paths. Compiler-declared requirements are derived from trusted, realistically available task specifications; a hidden-oracle condition explicitly tests situations where relevant requirements are unknown to the compiler. No test task is used to train or tune the scorer.
@@ -89,7 +89,7 @@ Let $N_A$ denote valid attack trials. Executed attack success is the number with
 Independently disable policy-first admission, dependency closure, explicit requirements, conflict constraints, integrity checks, and fail-closed behavior; replace learned ranking with lexical scoring. Some local security assertions are deterministic and should be tested as invariants. They do not by themselves establish reduced end-to-end attacks.
 
 \paragraph{Scale and feasibility.}
-The full design targets 200 independent tasks and 1,000 underlying operations; an initial pilot targets 40 paired tasks, catalog sizes 100 and 1,000, and four attack families (A1, A2, A4, A5). These are \emph{planned counts}, not collected samples. An honest pilot should report small-sample uncertainty and refrain from generalizing to all MCP servers.
+The full design targets 200 independent tasks and up to 1,000 underlying operations; the minimum pilot first targets 12 independently authored task templates, paired benign/adversarial variants, three systems, and two model runs (144 planned trials). A separate secondary stress test uses four templates at 100 and 1,000 underlying operations. The primary attack families are A1, A2, A4, and A5. These are \emph{planned counts}, not collected samples. An honest pilot should report small-sample uncertainty and refrain from generalizing to all MCP servers.
 
 \section{Expected Failure Modes and Falsification}
 We explicitly anticipate at least four ways the hypothesis can fail. First, semantic top-$k$ and schema validation may match CSE at lower cost. Second, declared requirements may cover the wrong facts and therefore cause \texttt{ready} on an oracle-incomplete bundle. Third, malicious instructions embedded in properly authorized evidence may still redirect the LLM. Fourth, fail-closed behavior may reduce unsafe actions mainly by refusing otherwise solvable legitimate tasks. These outcomes are reported as results, not treated as test defects.
@@ -99,7 +99,7 @@ A positive empirical claim requires paired improvements in at least one security
 \section{Related Work and Research Lineage}
 AgentDojo measures prompt-injection attacks against executable agent tasks \cite{debenedetti2024agentdojo}, while MCPTox studies poisoning in MCP tool metadata \cite{wang2026mcptox}. The layered MCP Composer pattern provides a realistic test workload rather than a novel retrieval design \cite{mcpcomposer2026}. This work differs in its proposed decomposition of admitted evidence, declared coverage, independently judged sufficiency, and execution authorization.
 
-The study is also informed by earlier unpublished research directions on purpose-aware memory, enterprise intent contracts, persistent latent computation, and compound-AI failure evaluation. Those ideas motivate explicit source provenance, purpose-sensitive scope, evidence dependency, and outcome verification. For double-blind review, identifying self-references and book/manuscript citations must be inserted only after confirming publication metadata and the workshop's anonymization guidance. They are not evidence of benchmark performance.
+Previous research on evidence sufficiency and selective abstention \cite{joren2025sufficient,zhang2026sufficiency,qiu2026sure,chen2026rinse} constrains the novelty of our proposal: the remaining question concerns explicit eligibility and dependency contracts coupled to executable agent tasks rather than answer-level sufficiency prediction alone. The study is also informed by earlier unpublished research directions on purpose-aware memory, enterprise intent contracts, persistent latent computation, and compound-AI failure evaluation. Those ideas motivate explicit source provenance, purpose-sensitive scope, evidence dependency, and outcome verification. For double-blind review, identifying self-references and book/manuscript citations must be inserted only after confirming publication metadata and the workshop's anonymization guidance. They are not evidence of benchmark performance.
 
 \section{Limitations, Ethics, and Reproducibility}
 CSE is a research MVP, not an authenticated identity service, semantic truth verifier, or prompt-injection sanitizer. SHA-256 validates equality to a trusted digest, not document authenticity by itself. No compiler can guarantee safe downstream action solely by serializing content as untrusted JSON. Simulated attack effects do not demonstrate compromise of real third-party systems. Evaluation must use synthetic tenants, dummy credentials, sandbox services, and responsible disclosure for any subsequently found real vulnerability.
@@ -121,6 +121,28 @@ Wang, Z.; Gao, Y.; Wang, Y.; Liu, S.; Sun, H.; Cheng, H.; Shi, G.; Du, H.; and L
 MCPTox: A Benchmark for Tool Poisoning on Real-World MCP Servers.
 \emph{Proceedings of the AAAI Conference on Artificial Intelligence}.
 \url{https://doi.org/10.1609/aaai.v40i42.40895}.
+
+\bibitem[Joren et~al.(2025)]{joren2025sufficient}
+Joren, H.; Zhang, J.; Ferng, C.-S.; Juan, D.-C.; Taly, A.; and Rashtchian, C. 2025.
+Sufficient Context: A New Lens on Retrieval Augmented Generation Systems.
+\emph{International Conference on Learning Representations}.
+\url{https://research.google/pubs/sufficient-context-a-new-lens-on-retrieval-augmented-generation-systems/}.
+
+\bibitem[Zhang and Wu(2026)]{zhang2026sufficiency}
+Zhang, H.; and Wu, W. 2026.
+Do LLMs Know When Evidence is Insufficient? An Evidence Sufficiency Benchmark for Answer-Abstention Calibration in Retrieval-Augmented Generation.
+\emph{Computers, Materials \& Continua}, 89(1).
+\url{https://doi.org/10.32604/cmc.2026.086343}.
+
+\bibitem[Qiu et~al.(2026)]{qiu2026sure}
+Qiu, J.; Han, Z.; and Huang, C. 2026.
+SURE-RAG: Sufficiency and Uncertainty-Aware Evidence Verification for Selective Retrieval-Augmented Generation.
+\url{https://arxiv.org/abs/2605.03534}.
+
+\bibitem[Chen et~al.(2026)]{chen2026rinse}
+Chen, S.; Hua, P.; and Xiao, Y. 2026.
+Relevance Is Not Sufficient Evidence: Detecting Evidence Gaps Before Generation in RAG.
+\url{https://arxiv.org/abs/2609.37469}.
 
 \bibitem[MCP Composer(2026)]{mcpcomposer2026}
 MCP Composer. 2026.
