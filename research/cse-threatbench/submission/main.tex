@@ -1,0 +1,130 @@
+% First manuscript draft for AAAI-27 LLM Agents Under Threat in Cyberspace.
+% REVIEW VERSION: anonymous; NO empirical results are reported.
+% Requires official AAAI-27 author kit (aaai2027.sty) without modification.
+% The workshop accepts up to 7 pages of content, references excluded.
+\documentclass[letterpaper]{article}
+\usepackage[submission]{aaai2027}
+\usepackage{times}
+\usepackage{helvet}
+\usepackage{courier}
+\usepackage[hyphens]{url}
+\usepackage{graphicx}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{multirow}
+\urlstyle{rm}
+\frenchspacing
+
+\title{Relevant Is Not Sufficient: Security and Evidence Sufficiency in LLM Agent Context Compilation}
+\author{Anonymous Authors}
+\begin{document}
+\maketitle
+\begin{abstract}
+Autonomous language-model agents increasingly select among retrieved documents, service descriptions, tool schemas, and observations before acting. Retrieval relevance alone neither establishes permission to observe a source nor guarantees that the assembled evidence suffices for a correct decision. At the same time, source eligibility and declared requirement coverage do not establish semantic truth, safety, or action authority. We formulate these as four separable properties: evidence eligibility, declared coverage, task-level sufficiency, and independently authorized execution. We introduce a threat-model-driven evaluation protocol for a policy-first Context Sufficiency Engine (CSE), which constructs provenance-bearing context bundles with dependency and token-budget constraints. The proposed benchmark uses paired benign and adversarial tasks, an independent sufficiency oracle, action-effect adjudication, and controlled ablations. A complementary scale study applies the same questions to layered Model Context Protocol (MCP) discovery, where three agent-facing tools address up to 1,000 underlying operations. We specify falsifiable hypotheses, baselines, and metrics that jointly measure security and legitimate-task utility. This version is a research protocol and architectural analysis: \emph{the end-to-end attacks and model evaluations have not yet been run}, and no defense efficacy is claimed.
+\end{abstract}
+
+\section{Introduction}
+An agent acting on an infrastructure incident may retrieve error reports, change records, service metadata, authorization rules, and executable tool schemas. Selecting highly relevant text is not enough: a record may belong to a different tenant, be stale, omit a prerequisite, or contain instructions injected by an untrusted source. A tool schema may be syntactically valid while its descriptive prose seeks to redirect the agent. Conversely, a correctly authenticated record may be misleading or incomplete. The fact that the model sees a relevant document does not entail that it has enough evidence to choose an action.
+
+Prompt injection against tool-using agents has been demonstrated in dynamic evaluation environments \cite{debenedetti2024agentdojo}; malicious MCP tool metadata introduces a distinct attack surface \cite{wang2026mcptox}. These studies motivate a complementary question: what portion of the security problem can be addressed \emph{before} inference by carefully controlling the composition of task evidence, and which vulnerabilities necessarily require independent action enforcement?
+
+We investigate an implemented research prototype, Context Sufficiency Engine (CSE), as a candidate mechanism, not a proven defense. CSE admits evidence according to tenant, access, time, and integrity constraints; preserves declared dependencies; accommodates token budgets and explicit evidence requirements; and emits a provenance manifest and coverage status. Its current \texttt{ready} status means that \emph{declared} requirements are satisfied; it does not certify factual or semantic sufficiency. We turn that limitation into the central empirical question rather than hiding it.
+
+Our design draws on a broader research program in trustworthy AI governance, purpose-aware memory, enterprise context/intent contracts, and failure-oriented evaluation. The relevant unifying idea is that a model-generated judgment must not silently become authority: data provenance, purpose, delegated access, and external effects require separate control. These prior concepts motivate our security model; they are not themselves treated as experimental evidence.
+
+\paragraph{Research questions.}
+\textbf{RQ1}: When evidence is missing, contradictory, or budget-constrained, does dependency-aware context compilation improve oracle-measured task sufficiency and legitimate completion over matched retrieval baselines?
+\textbf{RQ2}: Which context-origin security failures are prevented by policy-first compilation, and which survive in individually authorized but adversarial evidence?
+\textbf{RQ3}: Do any benefits persist under layered service discovery with 100--1,000 underlying operations?
+
+\paragraph{Potential contribution.}
+The proposed contribution is an experimental decomposition of \emph{eligibility}, \emph{declared coverage}, \emph{oracle sufficiency}, and \emph{execution authorization}, with paired adversarial tasks and end-to-end effect adjudication. We do not claim novelty for prompt-injection benchmarking, hierarchical MCP discovery, or deterministic access filtering alone.
+
+\section{Problem Formulation}
+Let $q$ be a legitimate task, $p$ an authenticated principal, $D$ a set of candidate evidence records, and $B$ a token budget. Each record $d\in D$ carries content, source, version, classification, integrity metadata, and optionally declared dependencies or conflicts. A trusted policy predicate defines eligibility:
+\begin{equation}
+D_p=\{d\in D:\operatorname{Allow}(p,d)\land\operatorname{Valid}(d)\}.
+\end{equation}
+A compiler constructs an ordered bundle $X=C(q,D_p,B)$ satisfying its local constraints, with $|X|_{\mathrm{tokens}}\le B$. A separately defined requirements set $R_q$ induces:
+\begin{equation}
+\operatorname{DeclaredReady}(X;R_q)=\bigwedge_{r\in R_q}\operatorname{Covered}(r,X).
+\end{equation}
+The evaluator, which is not visible to $C$, has independent admissible sufficient evidence sets $\mathcal{S}_q$. The simplest operational oracle is:
+\begin{equation}
+\operatorname{Sufficient}_{\mathrm{oracle}}(X,q)
+=\mathbb{1}\{\exists S\in\mathcal{S}_q:S\subseteq X\}.
+\end{equation}
+This definition applies only to tasks with explicit, checkable evidence dependencies. For ambiguous tasks, sufficiency is adjudicated using held-out fact questions or executable task-state constraints, not by the compiler's own assertions.
+
+Finally, the agent proposes actions $a$, but each side effect must be independently checked by $\operatorname{Authorize}(p,q,a,\mathrm{state})$. We distinguish unsafe \emph{proposals}, denied \emph{attempts}, unauthorized \emph{executions}, and completed legitimate outcomes. An unauthorized attempt blocked at execution is not an executed attack success.
+
+\section{Threat Model}
+The defender receives the user's legitimate task and tool responses through a trusted gateway. The adversary can modify a designated lower-trust slice: document contents, service summaries from a compromised source, explanatory schema fields, returned tool observations, candidate ordering, or injected high-volume distractors. The adversary aims to cause forbidden disclosure, wrong tool selection, omitted prerequisites, unjustified progression, or an unauthorized side effect.
+
+The attacker cannot change authenticated principal attributes, trusted policy, protected source manifests, the hidden oracle, or the independent execution enforcement point in the principal experiment. A compromised gateway or policy registry would be a separate threat model, not silently conflated with content poisoning.
+
+We study the following invariants and their limits: (I1) ineligible evidence cannot reach any scorer/model; (I2) selected compulsory evidence includes its valid dependency closure; (I3) requirement failure produces a blocked context, not a false assurance; (I4) untrusted content cannot alter trusted policy; (I5) provenance checks rely on an independently trusted source, not a self-asserted hash; (I6) execution is authorized independently of compilation; (I7) changed tool versions are revalidated before execution. The first three are local compiler properties; the others require gateway and runtime assumptions.
+
+\section{Systems and Benchmark Environments}
+\subsection{Environment A: Evidence Compilation}
+We construct task families for incident analysis, service ownership, operational diagnosis, and authorization-sensitive remediation. Tasks pair clean and adversarial evidence sets, preserving the legitimate objective and permissions. Attacks target cross-tenant access, omission of critical evidence, stale observations, undeclared contradictions, and malicious instructions in otherwise admissible text. Oracles contain the required facts, allowed decisions, and forbidden effects, authored separately from CSE input requirements.
+
+\subsection{Environment B: Layered MCP Discovery}
+A second setting follows the layered MCP Composer workflow: \texttt{get\_service\_info} discovers exposed operations, \texttt{get\_type\_info} reveals a selected operation's schema, and \texttt{make\_tool\_call} invokes it \cite{mcpcomposer2026}. We vary the \emph{underlying} catalog size (100, 500, 1,000 operations), not the number of agent-facing tools. Catalogs control semantic near-duplicates, schema complexity, version churn, permission requirements, and cross-service dependencies. Registered operations and policy-exposed operations are counted separately. A benchmark adapter represents selected discovery responses as evidence records while preserving tool identity and schemas. The adapter must not provide CSE with privileged oracle knowledge.
+
+\subsection{Attack Families}
+We define eight attack families: A1 cross-tenant evidence ranking, A2 evidence displacement/omission, A3 stale or conflicting evidence, A4 poisoned service descriptions, A5 misleading schema prose, A6 injected tool-response instructions, A7 service-version changes after discovery, and A8 adversarial ranking manipulation. A1--A3 primarily test admission and sufficiency; A4--A8 test limitations beyond deterministic evidence filtering.
+
+\section{Methodology}
+\paragraph{Baselines.}
+Compare (B0) unmodified layered discovery or task retrieval, (B1) lexical top-$k$, (B2) semantic top-$k$, (B3) hierarchical discovery with strong schema/policy validation, (B4) CSE eligibility-only, and (B5) full CSE. Keep the same independent execution gate across the main comparison. A distinct defense-in-depth analysis toggles that gate and is never attributed to CSE alone. Match model, context budgets, visible task information, service snapshots, and policy assumptions. Where a full catalog does not fit, report overflow rather than silently truncating it.
+
+\paragraph{Independent oracle and leakage prevention.}
+A task generator emits an execution sandbox and hidden outcome constraints. A second validation pass checks the oracle against task descriptions and feasible tool paths. Compiler-declared requirements are derived from trusted, realistically available task specifications; a hidden-oracle condition explicitly tests situations where relevant requirements are unknown to the compiler. No test task is used to train or tune the scorer.
+
+\paragraph{Primary measurements.}
+Let $N_A$ denote valid attack trials. Executed attack success is the number with verified forbidden effects divided by $N_A$; unsafe attempt rate counts forbidden tool requests whether denied or not. We separately measure forbidden-data exposure, legitimate task completion, false-block rate, evidence recall, false-ready rate against oracle sufficiency, discovery calls, input/output tokens, latency, and cost per successful task. Report paired task-level differences and confidence intervals; repeated LLM trials are nested within tasks.
+
+\paragraph{Ablations.}
+Independently disable policy-first admission, dependency closure, explicit requirements, conflict constraints, integrity checks, and fail-closed behavior; replace learned ranking with lexical scoring. Some local security assertions are deterministic and should be tested as invariants. They do not by themselves establish reduced end-to-end attacks.
+
+\paragraph{Scale and feasibility.}
+The full design targets 200 independent tasks and 1,000 underlying operations; an initial pilot targets 40 paired tasks, catalog sizes 100 and 1,000, and four attack families (A1, A2, A4, A5). These are \emph{planned counts}, not collected samples. An honest pilot should report small-sample uncertainty and refrain from generalizing to all MCP servers.
+
+\section{Expected Failure Modes and Falsification}
+We explicitly anticipate at least four ways the hypothesis can fail. First, semantic top-$k$ and schema validation may match CSE at lower cost. Second, declared requirements may cover the wrong facts and therefore cause \texttt{ready} on an oracle-incomplete bundle. Third, malicious instructions embedded in properly authorized evidence may still redirect the LLM. Fourth, fail-closed behavior may reduce unsafe actions mainly by refusing otherwise solvable legitimate tasks. These outcomes are reported as results, not treated as test defects.
+
+A positive empirical claim requires paired improvements in at least one security or sufficiency outcome without unacceptable legitimate-task degradation, and must survive strong baselines and mechanism ablations. Results will be bounded to the tested attacker privileges and gateway assumptions.
+
+\section{Related Work and Research Lineage}
+AgentDojo measures prompt-injection attacks against executable agent tasks \cite{debenedetti2024agentdojo}, while MCPTox studies poisoning in MCP tool metadata \cite{wang2026mcptox}. The layered MCP Composer pattern provides a realistic test workload rather than a novel retrieval design \cite{mcpcomposer2026}. This work differs in its proposed decomposition of admitted evidence, declared coverage, independently judged sufficiency, and execution authorization.
+
+The study is also informed by earlier unpublished research directions on purpose-aware memory, enterprise intent contracts, persistent latent computation, and compound-AI failure evaluation. Those ideas motivate explicit source provenance, purpose-sensitive scope, evidence dependency, and outcome verification. For double-blind review, identifying self-references and book/manuscript citations must be inserted only after confirming publication metadata and the workshop's anonymization guidance. They are not evidence of benchmark performance.
+
+\section{Limitations, Ethics, and Reproducibility}
+CSE is a research MVP, not an authenticated identity service, semantic truth verifier, or prompt-injection sanitizer. SHA-256 validates equality to a trusted digest, not document authenticity by itself. No compiler can guarantee safe downstream action solely by serializing content as untrusted JSON. Simulated attack effects do not demonstrate compromise of real third-party systems. Evaluation must use synthetic tenants, dummy credentials, sandbox services, and responsible disclosure for any subsequently found real vulnerability.
+
+The release plan includes catalog-generation rules, task oracles separated from defender inputs, clean/adversarial variants, pinned models, traces, ablation flags, analysis scripts, and a negative-results ledger. We will identify which data and scripts are available only after they are actually created and checked.
+
+\section{Conclusion}
+This paper proposes to evaluate context compilation as a measurable security and sufficiency intervention, not as a substitute for authenticated policy or action enforcement. The central scientific test is whether explicit admission, dependency, and coverage constraints improve real agent outcomes under adversarial evidence, including when tool discovery scales. The protocol is designed to falsify that claim as readily as support it.
+
+\begin{thebibliography}{}
+\bibitem[Debenedetti et~al.(2024)]{debenedetti2024agentdojo}
+Debenedetti, E.; Zhang, J.; Balunovi\'c, M.; Beurer-Kellner, L.; Fischer, M.; and Tram\`er, F. 2024.
+AgentDojo: A Dynamic Environment to Evaluate Prompt Injection Attacks and Defenses for LLM Agents.
+\emph{NeurIPS Datasets and Benchmarks Track}.
+\url{https://arxiv.org/abs/2406.13352}.
+
+\bibitem[Wang et~al.(2026)]{wang2026mcptox}
+Wang, Z.; Gao, Y.; Wang, Y.; Liu, S.; Sun, H.; Cheng, H.; Shi, G.; Du, H.; and Li, X. 2026.
+MCPTox: A Benchmark for Tool Poisoning on Real-World MCP Servers.
+\emph{Proceedings of the AAAI Conference on Artificial Intelligence}.
+\url{https://doi.org/10.1609/aaai.v40i42.40895}.
+
+\bibitem[MCP Composer(2026)]{mcpcomposer2026}
+MCP Composer. 2026.
+MCP Composer OpenAPI Flow: From Config to Tools.
+\url{https://ibm.github.io/mcp-composer/guide/layered_mcp_server.html}.
+\end{thebibliography}
+\end{document}
