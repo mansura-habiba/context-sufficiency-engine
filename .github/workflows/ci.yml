@@ -27,3 +27,7 @@ jobs:
         run: python -m cse benchmark examples/eval_cases.json
       - name: Demo compile
         run: python -m cse compile examples/incident.json
+      - name: CSE ThreatBench pilot tests
+        run: python research/cse-threatbench/test_pilot.py
+      - name: Deterministic ThreatBench report
+        run: python research/cse-threatbench/pilot.py --output /tmp/cse-threatbench-pilot.json
