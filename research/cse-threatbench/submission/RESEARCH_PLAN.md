@@ -1,6 +1,8 @@
-# CSE-ThreatBench: Research and submission plan (v1)
+# CSE-ThreatBench: Research and submission plan (v1.1)
 
-**Status:** pre-implementation; manuscript v1 written; **no empirical results available**.  
+**Status:** pre-implementation; manuscript v1 revised after novelty stress test; **no empirical results available**.
+
+> **Scope freeze, 17 Nov 2026:** Read [STRESS_TEST_AND_MINIMUM_EXPERIMENT.md](STRESS_TEST_AND_MINIMUM_EXPERIMENT.md) before implementation. The 12-template paired pilot, policy-aware S1-vs-S2 comparison, and independent oracle supersede the larger Friday pilot targets below. The 200-task/1,000-operation program is a longer-term target, not Friday's primary experiment.  
 **Venue:** AAAI-27 Workshop, *LLM Agents Under Threat in Cyberspace*. Deadline **Friday 20 November 2026, 23:59 AoE**; double-blind, 7 pages of body excluding references, AAAI two-column.  
 **Paper:** [main.tex](main.tex). **Repository branch:** `paper/aaai27-context-threatbench`.
 
@@ -29,6 +31,7 @@ Do **not** turn this into an MCP Composer paper, an AI failure engineering/Maven
 ## 2. Prior-work and research lineage
 
 ### External published sources requiring comparison
+**Critical prior-art update:** Joren et al. ICLR 2025; Zhang/Wu 2026 evidence sufficiency benchmark; SURE-RAG 2026; RINSE 2026. Their existence rules out claiming novelty merely for distinguishing relevance from sufficiency. Full references and scope are in the linked stress-test document.
 1. Debenedetti et al., *AgentDojo*, NeurIPS 2024: https://arxiv.org/abs/2406.13352. Dynamic executable agent security benchmark; so executable attacks alone are not novel.
 2. Wang et al., *MCPTox*, AAAI 2026: https://doi.org/10.1609/aaai.v40i42.40895. MCP metadata tool poisoning; so tool-description attacks alone are not novel.
 3. IBM MCP Composer layered factory: https://ibm.github.io/mcp-composer/guide/layered_mcp_server.html. The three operations are `get_service_info`, `get_type_info`, `make_tool_call`. This is a workload, not an invention claimed here.
