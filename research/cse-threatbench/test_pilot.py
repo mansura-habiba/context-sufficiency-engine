@@ -37,6 +37,22 @@ class PilotTests(unittest.TestCase):
             self.assertEqual(declared, {task.source})
             self.assertNotIn(task.prerequisite, declared)
 
+    def test_missing_required_record_blocks_only_when_declared_dependency_is_resolved(self):
+        output = module.run()
+        affected = [row for row in output["rows"] if row["attack"] == "A2"]
+        self.assertEqual(len(affected), 9)
+        self.assertTrue(all(not x["oracle_evidence_sufficient"] for x in affected))
+        self.assertTrue(all(x["status"] == "blocked" for x in affected if x["system"] == "S2_cse"))
+        self.assertTrue(all(x["status"] == "unverified" for x in affected if x["system"] != "S2_cse"))
+
+    def test_authorized_injection_is_not_automatically_sanitized(self):
+        output = module.run()
+        poisoned = [x for x in output["rows"] if x["attack"] in ("A4", "A5")
+                    and x["system"] == "S2_cse"]
+        self.assertEqual(len(poisoned), 6)
+        # CSE may admit malicious but authorized text. This is a LIMIT, not success.
+        self.assertTrue(all(x["malicious_evidence_selected"] for x in poisoned))
+
     def test_no_real_agent_claims(self):
         output = module.run()
         self.assertEqual(output["status"], "deterministic_selection_only")
