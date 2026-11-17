@@ -31,3 +31,8 @@ jobs:
         run: python research/cse-threatbench/test_pilot.py
       - name: Deterministic ThreatBench report
         run: python research/cse-threatbench/pilot.py --output /tmp/cse-threatbench-pilot.json
+      - name: Upload ThreatBench deterministic pilot report
+        uses: actions/upload-artifact@v4
+        with:
+          name: cse-threatbench-deterministic-${{ matrix.python-version }}
+          path: /tmp/cse-threatbench-pilot.json
